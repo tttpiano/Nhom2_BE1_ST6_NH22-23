@@ -6,4 +6,5 @@ if (isset($_GET['id'])) {
     header('location:products.php?id=' . $id);
 } else {
     unset($_SESSION['cart']);
+    //Helllo
 }
