@@ -7,7 +7,5 @@ if (isset($_GET['id']) && isset($_GET['qty'])) :
     else :
         $_SESSION['cart'][$id] = $qty;
     endif;
-
-
-    header('location:products.php?id=' . $id);
+    header('location:viewCart.php?id=' . $id);
 endif;

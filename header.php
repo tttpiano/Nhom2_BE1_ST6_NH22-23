@@ -24,13 +24,21 @@ $getAllManufacture = $manufacture->getAllManufacture();
 $getAllProtype = $protype->getAllProtype();
 $getOneProtype =  $protype->getOneProtype();
 $getFourProtype =  $protype->getFourProtype();
-
+$Price1 = 0;
+$totalPrice = 0;
 $totalCart = 0;
+$totalwishlist = 0;
 if (isset($_SESSION['cart'])) :
 	foreach ($_SESSION['cart'] as $key => $value) {
 		$totalCart += $value;
 	}
 endif;
+if (isset($_SESSION['wishlist'])) :
+	foreach ($_SESSION['wishlist'] as $key1 => $value1) {
+		$totalwishlist += $value1;
+	}
+endif;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,23 +76,30 @@ endif;
 		  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 		<![endif]-->
-
+	<script src="https://kit.fontawesome.com/f6dce9b617.js" crossorigin="anonymous"></script>
 </head>
 
-<body>
+<body onload="clearLocalStorage()">
 	<!-- HEADER -->
 	<header>
 		<!-- TOP HEADER -->
 		<div id="top-header">
 			<div class="container">
 				<ul class="header-links pull-left">
-					<li><a href="#"><i class="fa fa-phone"></i> +021-95-51-84</a></li>
-					<li><a href="#"><i class="fa fa-envelope-o"></i> email@email.com</a></li>
-					<li><a href="#"><i class="fa fa-map-marker"></i> 1734 Stonecoal Road</a></li>
+					<li><a href="#"><i class="fa fa-phone"></i> +8434-xxx-1008</a></li>
+					<li><a href="#"><i class="fa fa-envelope-o"></i>dragonno005@gmail.com</a></li>
+					<li><a href="#"><i class="fa fa-map-marker"></i>HCM city</a></li>
 				</ul>
 				<ul class="header-links pull-right">
-					<li><a href="#"><i class="fa fa-dollar"></i> USD</a></li>
-					<li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
+					<li><a href="#"><i class="fa fa-dollar"></i> VND</a></li>
+					<?php if (isset($_SESSION['user'])) : ?>
+
+						<li><a href="./login/login.php"><i class="fa fa-user-o"></i><?php echo $_SESSION['user']; ?></a></li>
+						<li><a href="logout.php"><i class="fas fa-sign-out-alt"></i>Log out</a></li>
+					<?php else :
+					?>
+						<li><a href="./login/login.php"><i class="fa fa-user-o"></i>Log in</a></li>
+					<?php endif; ?>
 				</ul>
 			</div>
 		</div>
@@ -99,7 +114,7 @@ endif;
 					<!-- LOGO -->
 					<div class="col-md-3">
 						<div class="header-logo">
-							<a href="#" class="logo">
+							<a href="index.php" class="logo">
 								<img src="./img/logo.png" alt="">
 							</a>
 						</div>
@@ -110,14 +125,17 @@ endif;
 					<div class="col-md-6">
 						<div class="header-search">
 							<form action="store.php" method="get">
-								<select class="input-select">
-									<option value="0">All Categories</option>
-									<option value="1">Category 01</option>
-									<option value="1">Category 02</option>
+								<select id='category' class="input-select">
+									<option value="0">Categories</option>
+									<option value="">All Categories</option>
+									<?php foreach ($getAllProtype as $value) : ?>
+										<option value="<?= $value['maLoai'] ?>"><?= $value['tenLoai'] ?></option>
+									<?php endforeach; ?>
 								</select>
 								<input class="input" name="keyword" placeholder="Search here">
 								<button type="Submit" class="search-btn">Search</button>
 							</form>
+
 						</div>
 					</div>
 					<!-- /SEARCH BAR -->
@@ -125,13 +143,41 @@ endif;
 					<!-- ACCOUNT -->
 					<div class="col-md-3 clearfix">
 						<div class="header-ctn">
-							<!-- Wishlist -->
-							<div>
-								<a href="#">
+							<div class="dropdown">
+
+								<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
 									<i class="fa fa-heart-o"></i>
 									<span>Your Wishlist</span>
-									<div class="qty">2</div>
+									<div class="qty"><?= $totalwishlist ?></div>
 								</a>
+								<div class="cart-dropdown">
+									<div class="cart-list">
+										<?php if (isset($_SESSION['wishlist'])) :
+
+											foreach ($_SESSION['wishlist'] as $key1 => $value1) :
+												$wishlist = $product->getProductById2($key1);
+										?>
+												<div class="product-widget">
+													<div class="product-img">
+														<img src="./images/<?= $wishlist['hinhSP'] ?>" alt="">
+													</div>
+													<div class="product-body">
+														<h3 class="product-name"><a href="products.php? id=<?= $key1 ?>"><?= $wishlist['tenSanPham'] ?></a></h3>
+														<h4 class="product-price"><span class="qty">X<?= $value1 ?></span><?= number_format($wishlist['giaSanPham']) ?>VND</h4>
+													</div>
+													<a href="deletewishlist.php?id=<?= $key1 ?>">
+														<button class="delete"><i class="fa fa-close"></i></button>
+													</a>
+
+												</div>
+										<?php endforeach;
+										endif; ?>
+									</div>
+									<div class="cart-summary" style="margin: 0px -17px -17px;text-align:center; background: #000;color: white;font-size: 20px;font-weight: bold;border-top: #D10024 4px solid; padding: 13px 0;">
+										<a href="store.php" style="color: #fff !important;">X<?= $totalwishlist ?> sản phẩm yêu thích</a>
+									</div>
+								</div>
+
 							</div>
 							<!-- /Wishlist -->
 
@@ -148,18 +194,23 @@ endif;
 								<div class="cart-dropdown">
 									<div class="cart-list">
 										<?php if (isset($_SESSION['cart'])) :
-											$totalPrice = 0;
+
 											foreach ($_SESSION['cart'] as $key => $value) :
 												$abc = $product->getProductById2($key);
+
 										?>
 												<div class="product-widget">
 													<div class="product-img">
 														<img src="./images/<?= $abc['hinhSP'] ?>" alt="">
 													</div>
+
 													<div class="product-body">
-														<h3 class="product-name"><a href="#"><?= $abc['tenSanPham'] ?></a></h3>
+
+														<h3 class="product-name"><a href="products.php? id=<?= $key ?>"><?= $abc['tenSanPham'] ?></a></h3>
 														<h4 class="product-price"><span class="qty">X<?= $value ?></span><?= number_format($abc['giaSanPham']) ?>VND</h4>
+
 													</div>
+
 													<a href="delete.php?id=<?= $key ?>">
 														<button class="delete"><i class="fa fa-close"></i></button>
 													</a>
@@ -171,10 +222,10 @@ endif;
 									</div>
 									<div class="cart-summary">
 										<small><?= $totalCart ?> is selected</small>
-										<h5>SUBTOTAL: <?= number_format($totalPrice)  ?>VND</h5>
+										<h5>SUBTOTAL: <?= number_format($totalPrice) ?> VND</h5>
 									</div>
 									<div class="cart-btns">
-										<a href="#">View Cart</a>
+										<a href="viewCart.php">View Cart</a>
 										<a href="checkout.php">Checkout <i class="fa fa-arrow-circle-right"></i></a>
 									</div>
 								</div>
@@ -214,7 +265,7 @@ endif;
 				<ul class="main-nav nav navbar-nav">
 					<li class="active"><a href="index.php">Home</a></li>
 					<?php foreach ($getAllProtype as $value) : ?>
-						<li><a href="loai.php? id=<?php echo $value['maLoai'] ?>"><?= $value['tenLoai'] ?></a></li>
+						<li><a href="store.php? loai=<?php echo $value['maLoai'] ?>&page=1"><?= $value['tenLoai'] ?></a></li>
 					<?php endforeach; ?>
 				</ul>
 
@@ -224,4 +275,20 @@ endif;
 		</div>
 		<!-- /container -->
 	</nav>
+	<script>
+		document.getElementById('category').onchange = function(even) {
+			var a = even.target.value;
+
+			window.location.href = 'store.php?loai=' + a + "&page=1";
+		}
+
+
+
+
+
+
+		function clearLocalStorage() {
+			localStorage.clear()
+		}
+	</script>
 	<!-- /NAVIGATION -->

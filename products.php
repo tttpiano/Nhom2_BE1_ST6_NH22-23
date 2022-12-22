@@ -42,19 +42,22 @@ include "header.php";
 						<div class="col-md-5 col-md-push-2">
 							<div id="product-main-img">
 								<div class="product-preview">
-									<img src="images/<?= $value['hinhSP'] ?>" alt="">
+									<img src="./images/<?= $value['hinhSP'] ?>" alt="" style=" width:400px; height: 310px; margin:0 32px;">
 								</div>
-								<!-- <div class="product-preview">
-										<img src="./img/product03.png" alt="">
-									</div>
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh1'] ?>" alt="" style=" width: 400px; height: 310px; margin:0 32px;">
+								</div>
 
-									<div class="product-preview">
-										<img src="./img/product06.png" alt="">
-									</div>
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh2'] ?>" alt="" style=" width: 400px; height: 310px; margin:0 32px;">
+								</div>
 
-									<div class="product-preview">
-										<img src="./img/product08.png" alt="">
-									</div> -->
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh3'] ?>" alt="" style=" width: 400px; height: 310px; margin:0 32px;">
+								</div>
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh4'] ?>" alt="" style=" width: 400px; height: 310px; margin:0 32px;">
+								</div>
 							</div>
 						</div>
 						<!-- /Product main img -->
@@ -62,20 +65,23 @@ include "header.php";
 						<div class="col-md-2  col-md-pull-5">
 							<div id="product-imgs">
 								<div class="product-preview">
-									<img src="images/<?= $value['hinhSP'] ?>" alt="">
+									<img src="./images/<?= $value['hinhSP'] ?>" alt="" style=" width:153px; height: 102px;">
 								</div>
-								<!-- 
-						<div class="product-preview">
-							<img src="./img/product03.png" alt="">
-						</div>
 
-						<div class="product-preview">
-							<img src="./img/product06.png" alt="">
-						</div>
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh1'] ?>" alt="" style=" width:153px; height: 102px;">
+								</div>
 
-						<div class="product-preview">
-							<img src="./img/product08.png" alt="">
-						</div> -->
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh2'] ?>" alt="" style=" width:153px; height: 102px;">
+								</div>
+
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh3'] ?>" alt="" style=" width:153px; height: 102px;">
+								</div>
+								<div class="product-preview">
+									<img src="./images/<?= $value['hinh4'] ?>" alt="" style=" width:153px; height: 102px;">
+								</div>
 							</div>
 						</div>
 						<!-- /Product thumb imgs -->
@@ -190,7 +196,7 @@ include "header.php";
 						<div id="tab2" class="tab-pane fade in">
 							<div class="row">
 								<div class="col-md-12">
-									<p><?= $value['moTaSP'] ?></p>
+									<p><?= $value['moTaSP1'] ?></p>
 								</div>
 							</div>
 						</div>
@@ -402,7 +408,7 @@ include "header.php";
 				foreach ($getAllProducts as $value) :
 					if ($id == $value['maSanPham']) :
 						$maLoai = $value['maLoaiSP'];
-						$getProductByIdMaLoai = $product->getProductByIdMaLoai($maLoai);
+						$getProductByIdMaLoai = $product->getProductByIdMaLoai($maLoai, 1, 4);
 						foreach ($getProductByIdMaLoai as $value1) :
 			?>
 							<!-- product -->
@@ -423,7 +429,7 @@ include "header.php";
 										<div class="product-rating">
 										</div>
 										<div class="product-btns">
-											<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+											<button class="add-to-wishlist" onclick="addTowishlist(<?php echo $value['maSanPham'] ?>)"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
 											<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 											<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 										</div>
@@ -604,6 +610,12 @@ include "header.php";
 	}
 </script>
 <script src="js/main.js"></script>
+<script>
+	function addTowishlist(id) {
+		window.location.href = 'addwishlist.php?id=' + id;
+	}
+</script>
+
 
 </body>
 

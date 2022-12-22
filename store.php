@@ -1,5 +1,7 @@
 <?php
 include "header.php";
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+$countPages = 3;
 ?>
 <!-- BREADCRUMB -->
 <div id="breadcrumb" class="section">
@@ -31,12 +33,12 @@ include "header.php";
 			<!-- ASIDE -->
 			<div id="aside" class="col-md-3">
 				<!-- aside Widget -->
-				<div class="aside">
+				<!-- <div class="aside">
 					<h3 class="aside-title">Categories</h3>
 					<div class="checkbox-filter">
 						<?php foreach ($getAllProtype as $value) : ?>
 							<div class="input-checkbox">
-								<input type="checkbox" id="category-<?= $value['maLoai'] ?>">
+								<input type="checkbox" onclick="load_ajax(-1,'null',<?= $value['maLoai'] ?>,'<?= $value['tenLoai'] ?>')" id="category-<?= $value['maLoai'] ?>">
 								<label for="category-<?= $value['maLoai'] ?>">
 									<span></span>
 									<?= $value['tenLoai'] ?>
@@ -45,11 +47,11 @@ include "header.php";
 							</div>
 						<?php endforeach; ?>
 					</div>
-				</div>
+				</div> -->
 				<!-- /aside Widget -->
 
 				<!-- aside Widget -->
-				<div class="aside">
+				<!-- <div class="aside">
 					<h3 class="aside-title">Price</h3>
 					<div class="price-filter">
 						<div id="price-slider"></div>
@@ -65,7 +67,7 @@ include "header.php";
 							<span class="qty-down">-</span>
 						</div>
 					</div>
-				</div>
+				</div> -->
 				<!-- /aside Widget -->
 
 				<!-- aside Widget -->
@@ -74,7 +76,7 @@ include "header.php";
 					<div class="checkbox-filter">
 						<?php foreach ($getAllManufacture as $value) : ?>
 							<div class="input-checkbox">
-								<input type="checkbox" id="brand-<?= $value['maHang'] ?>">
+								<input type="checkbox" onclick="load_ajax(<?= $value['maHang'] ?>,'<?= $value['tenHang'] ?>')" id="brand-<?= $value['maHang'] ?>">
 								<label for="brand-<?= $value['maHang'] ?>">
 									<span></span>
 									<?= $value['tenHang'] ?>
@@ -148,11 +150,12 @@ include "header.php";
 						$search = $product->search($keyWord);
 						foreach ($search as $value) :
 
+
 					?>
 							<div class="col-md-4 col-xs-6">
 								<div class="product">
 									<div class="product-img" style="height: 200px;">
-										<img style="height: 200px; padding: 20px" src='images/<?php echo $value['hinhSP'] ?>' alt="">
+										<img style="height: 200px; padding: 20px;" src='images/<?php echo $value['hinhSP'] ?>' alt="">
 										<div class="product-label">
 											<!-- <span class="sale">-30%</span> -->
 											<span class="new">NEW</span>
@@ -160,7 +163,7 @@ include "header.php";
 									</div>
 									<div class="product-body">
 										<p class="product-category"><?= $value['tenHang'] ?></p>
-										<h3 class="product-name" style="height: 50px;"><a href="products.php? id=<?php echo $value['maSanPham'] ?>"><?= $value['tenSanPham'] ?></a></h3>
+										<h3 class="product-name" style="height: 50px !important;"><a href="products.php? id=<?php echo $value['maSanPham'] ?>"><?= $value['tenSanPham'] ?></a></h3>
 										<h4 class="product-price"><?= number_format($value['giaSanPham']) ?> VND
 											<!-- <del class="product-old-price">$990.00</del>-->
 										</h4>
@@ -172,7 +175,7 @@ include "header.php";
 											<i class="fa fa-star"></i>
 										</div>
 										<div class="product-btns">
-											<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+											<button class="add-to-wishlist" onclick="addTowishlist(<?php echo $value['maSanPham'] ?>)"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
 											<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 											<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 										</div>
@@ -187,23 +190,116 @@ include "header.php";
 					<?php endforeach;
 					endif; ?>
 					<!-- /product -->
+					<?php
+					if (isset($_GET['loai'])) :
+						$loai = $_GET['loai'];
+						$a = $product->getProductByIdMaLoai($loai, $page * $countPages - $countPages, $countPages);
+						if (empty($loai)) {
+							$row1 = count($product->getAllProducts());
+						} else {
+							$row1 = $product->totalProductByLoai($loai);
+						}
+
+						$totalLoai = ceil($row1 / $countPages) + 1;
+
+						foreach ($a as $vaLoai) :
+					?>
+							<tr>
+								<div class="col-md-4 col-xs-6">
+									<div class="product">
+										<div class="product-img" style="height: 200px;">
+											<td><img style="height: 200px; padding: 20px" src="./images/<?= $vaLoai['hinhSP'] ?>" width="100px"></td>
+											<div class="product-label">
+												<span class="new">NEW</span>
+											</div>
+										</div>
+										<div class="product-body">
+											<p class="product-category"><?php echo $vaLoai["tenHang"] ?></p>
+											<h3 class="product-name" style="height: 50px !important;"><a href="products.php? id=<?php echo $vaLoai['maSanPham'] ?>"><?= $vaLoai['tenSanPham'] ?></a></h3>
+											<h4 class="product-price"><?php echo number_format($vaLoai["giaSanPham"]) ?></h4>
+											<div class="product-rating">
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+											</div>
+											<div class="product-btns">
+												<button class="add-to-wishlist" onclick="addTowishlist(<?php echo $vaLoai['maSanPham'] ?>)"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+												<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+												<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+											</div>
+										</div>
+										<div class="add-to-cart">
+											<button class="add-to-cart-btn"><a href="products.php?id=<?php echo $vaLoai["maSanPham"]; ?>"><i class="fa fa-shopping-cart"></i>add to cart</a></button>
+										</div>
+									</div>
+
+								</div>
+							</tr>
+
+						<?php endforeach; ?>
+						<!-- store bottom filter -->
 
 
 				</div>
-				<!-- /store products -->
 
-				<!-- store bottom filter -->
+				<!-- /store products -->
 				<div class="store-filter clearfix">
 					<span class="store-qty">Showing 20-100 products</span>
 					<ul class="store-pagination">
-						<li class="active">1</li>
-						<li><a href="#">2</a></li>
-						<li><a href="#">3</a></li>
-						<li><a href="#">4</a></li>
-						<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+						<?php for ($i = 1; $i < $totalLoai; $i++) { ?>
+							<li id="pages-<?= $i ?>"><a onclick="switchPages(<?= $i ?>,<?= $loai ?>)"><?= $i ?></a></li>
+						<?php } ?>
+
 					</ul>
 				</div>
 				<!-- /store bottom filter -->
+			<?php endif; ?>
+			<?php
+			if (isset($_SESSION['wishlist'])) :
+				foreach ($_SESSION['wishlist'] as $key1 => $value1) :
+					$wishlist = $product->getProductById2($key1);
+			?>
+					<tr>
+						<div class="col-md-4 col-xs-6">
+							<div class="product">
+								<div class="product-img" style="height: 200px;">
+									<td><img style="height: 200px; padding: 20px" src="./images/<?= $wishlist['hinhSP'] ?>" width="100px"></td>
+									<div class="product-label">
+										<span class="new">NEW</span>
+									</div>
+								</div>
+								<div class="product-body">
+									<p class="product-category"><?php echo $wishlist["tenHang"] ?></p>
+									<h3 class="product-name" style="height: 50px !important;"><a href="products.php? id=<?php echo $wishlist['maSanPham'] ?>"><?= $wishlist['tenSanPham'] ?></a></h3>
+									<h4 class="product-price"><?php echo number_format($wishlist["giaSanPham"]) ?>VND</h4>
+									<div class="product-rating">
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+									</div>
+									<div class="product-btns">
+										<a href="deletewishlist.php?id=<?= $wishlist['maSanPham'] ?>">
+											<i class="fa fa-heart-o" style="color: red;"></i><span class="tooltipp"></span></a>
+										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+									</div>
+								</div>
+								<div class="add-to-cart">
+									<button class="add-to-cart-btn"><a href="products.php?id=<?php echo $wishlist["maSanPham"]; ?>"><i class="fa fa-shopping-cart"></i>add to cart</a></button>
+								</div>
+							</div>
+
+						</div>
+					</tr>
+
+			<?php endforeach;
+			endif; ?>
+
+
 			</div>
 			<!-- /STORE -->
 		</div>
@@ -354,6 +450,104 @@ include "header.php";
 <script src="js/nouislider.min.js"></script>
 <script src="js/jquery.zoom.min.js"></script>
 <script src="js/main.js"></script>
+<script>
+	function addTowishlist(id) {
+		window.location.href = 'addwishlist.php?id=' + id;
+	}
+
+	function load_ajax(id, brand) {
+
+		//----------------- brands ------------------
+
+		let brands = localStorage.getItem('brands') != null ? JSON.parse(localStorage.getItem('brands')) : [];
+
+
+		var check = document.getElementById('brand-' + id);
+		if (check.checked) {
+			brands.push(brand);
+			localStorage.setItem('brands', JSON.stringify(brands));
+		} else {
+			const index = brands.indexOf(brand);
+			if (index > -1) { // only splice array when item is found
+				brands.splice(index, 1); // 2nd parameter means remove one item only
+			}
+
+			localStorage.setItem('brands', JSON.stringify(brands));
+		}
+		var sanPham = document.querySelector('#store .row');
+
+
+		$.ajax({
+			url: "ajax.php",
+			type: "post",
+			dataType: "json",
+			data: {
+				brands: brands,
+
+			},
+			success: function(result) {
+
+
+				var htmls = result.map((element) => {
+					return `
+						<div class="col-md-4 col-xs-6">
+							<div class="product">
+								<div class="product-img" style="height: 200px;">
+									<img style="height: 200px; padding: 20px" src='images/${element.hinhSP}' alt="">
+									<div class="product-label">
+										<!-- <span class="sale">-30%</span> -->
+										<span class="new">NEW</span>
+									</div>
+								</div>
+								<div class="product-body">
+									<p class="product-category">${element.tenHang}</p>
+									<h3 class="product-name" style="height: 50px;"><a href="products.php? id=${element.maSanPham}">${element.tenSanPham}</a></h3>
+									<h4 class="product-price">
+									${element.giaSanPham.toLocaleString('vn-VN', {style: 'currency',currency: 'VND',})} VND
+										<!-- <del class="product-old-price">$990.00</del>-->
+									</h4>
+									<div class="product-rating">
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+									</div>
+									<div class="product-btns">
+										<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+									</div>
+								</div>
+								<a href="products.php? id=${element.maSanPham}">
+									<div class="add-to-cart">
+										<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+									</div>
+								</a>
+							</div>
+						</div>`
+				})
+				sanPham.innerHTML = htmls.join('');
+
+			},
+			error: function(e) {
+				sanPham.innerHTML = ''
+			}
+
+
+		})
+	}
+
+	function switchPages(numberPage, loai) {
+		if (loai == undefined) {
+			loai = '';
+		}
+		window.location.href = 'store.php?loai=' + loai + "&page=" + numberPage;
+
+	}
+	var a = document.getElementById("pages-" + <?= $page ?>);
+	a.classList.add('active');
+</script>
 
 </body>
 

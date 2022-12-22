@@ -11,7 +11,7 @@ class Product extends Db
     }
     public function getProductById($id)
     {
-        $sql = self::$connection->prepare("SELECT maSanPham, maHangSX, tenHang,tenSanPham,maLoaiSP,giaSanPham,hinhSP,moTaSP FROM products, manufactures WHERE products.maHangSX = manufactures.maHang AND maSanPham = ?");
+        $sql = self::$connection->prepare("SELECT maSanPham, maHangSX, tenHang,tenSanPham,maLoaiSP,hinh1,hinh2,hinh3,hinh4,giaSanPham,hinhSP,moTaSP, moTaSP1 FROM products, manufactures WHERE products.maHangSX = manufactures.maHang AND maSanPham = ?");
         $sql->bind_param("i", $id);
         $sql->execute(); //return an object
         $items = array();
@@ -76,10 +76,15 @@ class Product extends Db
         return $items; //return an array
     }
 
-    public function getProductByIdMaLoai($id)
+    public function getProductByIdMaLoai($id, $startImages, $imagess)
     {
-        $sql = self::$connection->prepare("SELECT maSanPham, maHangSX, tenHang,tenSanPham,maLoaiSP,giaSanPham,hinhSP,moTaSP FROM products, manufactures WHERE products.maHangSX = manufactures.maHang AND maLoaiSP = ?");
-        $sql->bind_param("i", $id);
+        if (empty($id)) {
+            $sql = self::$connection->prepare("SELECT maSanPham, maHangSX, tenHang,tenSanPham,maLoaiSP,giaSanPham,hinhSP,moTaSP FROM products, manufactures WHERE products.maHangSX = manufactures.maHang Limit $startImages, $imagess");
+        } else {
+            $sql = self::$connection->prepare("SELECT maSanPham, maHangSX, tenHang,tenSanPham,maLoaiSP,giaSanPham,hinhSP,moTaSP FROM products, manufactures WHERE products.maHangSX = manufactures.maHang AND maLoaiSP = ? Limit $startImages, $imagess");
+            $sql->bind_param("i", $id);
+        }
+
         $sql->execute(); //return an object
         $items = array();
         $items = $sql->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -94,5 +99,46 @@ class Product extends Db
         $items = array();
         $items = $sql->get_result()->fetch_all(MYSQLI_ASSOC);
         return $items; //return an array
+    }
+    public function getProductByBrand($brands)
+    {
+        $sql = self::$connection->prepare("SELECT maSanPham,tenHang,tenLoai,tenSanPham,giaSanPham,hinhSP,moTaSP FROM products INNER JOIN manufactures on products.maHangSX = manufactures.maHang INNER JOIN protype on products.maLoaiSP = protype.maLoai WHERE manufactures.tenHang in (" . $brands . ")");
+        //$sql->bind_param("s", $brands);
+        $sql->execute();
+        $items = array(); //return an object
+        $items = $sql->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $items;
+    }
+    public function getProductBytyles($tyles)
+    {
+        $sql = self::$connection->prepare("SELECT maSanPham,tenHang,tenLoai,tenSanPham,giaSanPham,hinhSP,moTaSP FROM products INNER JOIN manufactures on products.maHangSX = manufactures.maHang INNER JOIN protype on products.maLoaiSP = protype.maLoai WHERE manufactures.tenLoai in (" . $tyles . ")");
+        //$sql->bind_param("s", $brands);
+        $sql->execute();
+        $items = array(); //return an object
+        $items = $sql->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $items;
+    }
+    public function getPagesStore($startImages, $imagess)
+    {
+        $data = null;
+        $sql = "SELECT maSanPham, maHangSX, tenHang,tenSanPham,maLoaiSP,giaSanPham,hinhSP,moTaSP FROM products, manufactures WHERE products.maHangSX = manufactures.maHang Limit $startImages, $imagess";
+        $result = self::$connection->query($sql);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $page[] = $row;
+            }
+            return $page;
+        }
+    }
+    public function totalProductByLoai($id)
+    {
+        $sql = self::$connection->prepare("SELECT * From products where maLoaiSP = ?");
+        $sql->bind_param("i", $id);
+        $sql->execute();
+        $items = array(); //return an object
+        $items = $sql->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // return $items[0];
+        return count($items);
     }
 }

@@ -71,7 +71,10 @@ h6 {
   font-weight: 700;
   margin: 0 0 10px;
 }
-
+.sl,
+.total {
+  text-align: center !important;
+}
 a {
   color: #2b2d42;
   font-weight: 500;
